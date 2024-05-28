@@ -1,22 +1,27 @@
-﻿// Подключиться к SignalR хабу
-using Microsoft.AspNetCore.SignalR.Client;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
 
 var connection = new HubConnectionBuilder()
     .WithUrl("http://localhost:5000/messages")
+    .ConfigureLogging(logging =>
+    {
+        logging.SetMinimumLevel(LogLevel.Information);
+    })
     .Build();
+
+connection.On<string, string>("ReceiveMessage", (user, message) =>
+{
+    Console.WriteLine($"{user}: {message}");
+});
+
 await connection.StartAsync();
 
-var clientMessage = Console.ReadLine();
+Console.WriteLine("Connected to the server.");
+Console.Write("Enter your name: ");
+var userName = Console.ReadLine();
 
-// Отправить сообщение
-
-// Слушать получение сообщений
-while (true)
+string message;
+while ((message = Console.ReadLine()) != null)
 {
-    await connection.InvokeAsync("SendMessage", $"{clientMessage}");
-
-    connection.On<string>("ReceiveMessage", (message) =>
-    {
-        Console.WriteLine($"Получено сообщение: {message}");
-    });
+    await connection.SendAsync("SendMessage", userName, message);
 }
