@@ -17,6 +17,7 @@ connection.On<string, string>("ReceiveMessage", (user, message) =>
 await connection.StartAsync();
 
 Console.WriteLine("Connected to the server.");
+
 Console.Write("Enter your name: ");
 var userName = Console.ReadLine();
 
